@@ -22,50 +22,68 @@ export function ProductGrid() {
     hasNextPage: false,
     hasPrevPage: false
   })
-  const [loading, setLoading] = useState(true)
-  
-  const fetchProducts = async (page: number = 1, limit: number = 10) => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchProducts = async (page: number = 1, limit: number = 10, append = false) => {
+    if (loading) return
     setLoading(true)
+    setError(null)
+
     try {
       const response = await fetch(`/api/products?page=${page}&limit=${limit}`)
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
       const data = await response.json()
-      setProducts(data.products)
+      setProducts((prev) => (append ? [...prev, ...data.products] : data.products))
       setPagination(data.pagination)
-    } catch (error) {
-      console.error('Error fetching products:', error)
+    } catch (err: any) {
+      console.error('Error fetching products:', err)
+      setError(err?.message ?? 'Unknown error')
     } finally {
       setLoading(false)
     }
   }
-  
+
   useEffect(() => {
-    fetchProducts()
+    fetchProducts(1, pagination.limit, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const loadMore = () => {
+    if (!pagination.hasNextPage || loading) return
+    const nextPage = pagination.page + 1
+    fetchProducts(nextPage, pagination.limit, true)
+  }
 
   return (
     <div>
-      {/* Do your magic here */}
       <div>
         {products.map((product) => (
-          <div key={product.id}>
-            <div>{product.name}</div>
+          <div key={product.id} className="mb-4">
+            <div className="font-medium">{product.name}</div>
             <div>{product.price} kr</div>
           </div>
         ))}
+
+        {loading && <div className="mt-4">Loading...</div>}
+        {error && <div className="mt-4 text-red-600">Error: {error}</div>}
+
+        {!loading && pagination.hasNextPage && (
+          <div className="mt-6">
+            <button onClick={loadMore} className="px-4 py-2 rounded bg-sky-600 text-white hover:bg-sky-700">
+              Load more
+            </button>
+          </div>
+        )}
+
+        {!pagination.hasNextPage && products.length > 0 && (
+          <div className="mt-6 text-sm text-gray-600">You have reached the end.</div>
+        )}
       </div>
-
-      {/* This below can be removed */}
-      {products.length > 0 && (
-        <div className="prose prose-pre:bg-green-100 dark:prose-pre:bg-green-900 prose-pre:text-green-900 dark:prose-pre:text-green-100 mt-8 border-t pt-4">
-          <h3 className="text-green-900 dark:text-green-100">
-            Data structure <i>(this can be removed)</i>
-          </h3>
-
-          <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
-            {JSON.stringify([products[0]], null, 2)}
-          </pre>
-        </div>
-      )}
     </div>
   )
 }
+
+export default ProductGrid
