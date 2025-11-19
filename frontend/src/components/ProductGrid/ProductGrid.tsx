@@ -34,14 +34,11 @@ export function ProductGrid() {
 
     try {
       const response = await fetch(`/api/products?page=${page}&limit=${limit}`)
-
       // handle HTTP errors
       if (!response.ok) {
         throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
-
       const data = await response.json()
-
       const incoming: Product[] = Array.isArray(data.products) ? data.products : []
 
       if (append) {
@@ -53,8 +50,8 @@ export function ProductGrid() {
       } else {
         setProducts(incoming)
       }
-
       setPagination(data.pagination)
+
     } catch (err: any) {
       console.error('Error fetching products:', err)
 
