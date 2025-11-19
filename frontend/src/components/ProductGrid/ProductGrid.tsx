@@ -24,6 +24,7 @@ export function ProductGrid() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const lastProductRef = useRef<HTMLDivElement | null>(null)
 
@@ -99,17 +100,56 @@ export function ProductGrid() {
 
   return (
     <div>
-      <div>
+      <button
+        onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+        className="mb-4 px-4 py-2 bg-sky-600 text-white font-medium rounded hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 transition-colors"
+      >
+        {viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'}
+      </button>
+      <div className={viewMode === 'grid'
+        ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'
+        : 'flex flex-col gap-4'
+      }>
         {products.map((product, index) => {
           const isLast = index === products.length - 1
           return (
+
             <div
               key={product.id}
-              className="mb-4"
-              ref={isLast ? lastProductRef : null}
+              className="bg-white w-full mx-auto dark:bg-gray-900 shadow-md rounded-lg overflow-hidden p-4 flex flex-col transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1" ref={isLast ? lastProductRef : null}
             >
-              <div className="font-medium">{product.name}</div>
-              <div>{product.price} kr</div>
+
+              <div className="w-full mx-auto max-w-md">
+                {/* Product image */}
+                {product.image_url && (
+                  <img
+                    loading="lazy"
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full  aspect-[4/3] overflow-hidden rounded-md mb-4"
+                  />
+                )}
+
+                {/* Product name */}
+                <div className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
+                  {product.name}
+                </div>
+
+                {/* Product description */}
+                <div className="text-gray-700 dark:text-gray-300 text-sm mb-2">
+                  {product.description}
+                </div>
+
+                {/* Product price */}
+                <div className="text-gray-900 dark:text-gray-100 font-medium">
+                  {product.price} kr
+                </div>
+
+                {/* Optional: Category */}
+                <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                  {product.category} • Stock: {product.stock_quantity}
+                </div>
+              </div>
             </div>
           )
         })}
