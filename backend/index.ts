@@ -1,26 +1,19 @@
-import express from 'express';
-import mysql from 'mysql2/promise';
+// /backend/index.ts
+import express, { Request, Response } from 'express';
+import { getProducts } from './controllers/products';
+import { pool } from './db';
+import { z } from 'zod';
 
 const app = express();
 const port = process.env.PORT || 3001;
-
 app.use(express.json());
 
-// Database connection
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'password',
-  database: process.env.DB_NAME,
-  port: parseInt(process.env.DB_PORT || '3306')
-};
-
-// Create database connection pool
-const pool = mysql.createPool(dbConfig);
-
-app.get('/health', async (_, res) => {
+// -----------------------------
+// Health check
+// -----------------------------
+app.get('/health', async (_: Request, res: Response) => {
   try {
-    await pool.execute('SELECT 1+1')
+    await pool.execute('SELECT 1+1');
     res.json({ status: 'ok' });
   } catch (error) {
     console.error('Database error:', error);
@@ -28,43 +21,50 @@ app.get('/health', async (_, res) => {
   }
 });
 
-app.get('/products', async (req, res) => {
+
+// -----------------------------
+// Zod schema for query validation
+// -----------------------------
+const querySchema = z.object({
+  page: z
+    .string()
+    .regex(/^\d+$/)       // must be a string containing digits only
+    .transform(Number)    // convert to number
+    .optional(),          // optional because we provide a default later
+  limit: z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .optional(),
+});
+
+// -----------------------------
+// Products endpoint
+// -----------------------------
+app.get('/products', async (req: Request, res: Response) => {
   try {
-    const page: number = parseFloat(req.query.page as string) || 1;
-    const limit: number = parseFloat(req.query.limit as string) || 10;
-    const offset = (page - 1) * limit;
+    const parsed = querySchema.parse(req.query);
+    const page = Math.max(1, parsed.page ?? 1);        // minimum 1
+    const limit = Math.min(100, Math.max(1, parsed.limit ?? 10)); // 1–100
 
-    // Get total count for pagination metadata
-    const [countResult] = await pool.execute('SELECT COUNT(*) as total FROM products');
-    const total = (countResult as any)[0].total;
-
-    // Get paginated products - use LIMIT with offset calculation
-    const [rows] = await pool.execute(
-      `SELECT * FROM products LIMIT ? OFFSET ?;`,
-      [String(limit), String(offset)]
-    );
-
-    const totalPages = Math.ceil(total / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-
-    res.json({
-      products: rows,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNextPage,
-        hasPrevPage
-      }
-    });
+    // Fetch products from DB
+    const data = await getProducts(page, limit);
+    res.json(data);
   } catch (error) {
     console.error('Database error:', error);
-    res.status(500).json({ error: 'Failed to fetch products from database' });
+
+    // Friendly error for end user
+    res.status(500).json({
+      error: 'Unable to fetch products at the moment, please try again later.',
+    });
   }
 });
 
+// -----------------------------
+// Start server
+// -----------------------------
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+export { app };
