@@ -29,14 +29,19 @@ export function ProductGrid() {
   const lastProductRef = useRef<HTMLDivElement | null>(null)
 
   const fetchProducts = async (page: number = 1, limit: number = 10, append = false) => {
-    if (loading) return
     setLoading(true)
     setError(null)
 
     try {
       const response = await fetch(`/api/products?page=${page}&limit=${limit}`)
-      if (!response.ok) throw new Error(`API error: ${response.status}`)
+
+      // handle HTTP errors
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`)
+      }
+
       const data = await response.json()
+
       const incoming: Product[] = Array.isArray(data.products) ? data.products : []
 
       if (append) {
@@ -46,17 +51,19 @@ export function ProductGrid() {
           return [...prev, ...uniqueIncoming]
         })
       } else {
-        const map = new Map<string, Product>()
-        incoming.forEach((p) => {
-          if (!map.has(p.id)) map.set(p.id, p)
-        })
-        setProducts(Array.from(map.values()))
+        setProducts(incoming)
       }
 
       setPagination(data.pagination)
     } catch (err: any) {
       console.error('Error fetching products:', err)
-      setError(err?.message ?? 'Unknown error')
+
+      // Friendly error message for end user
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError('Unable to load products. Please check your internet connection and try again.')
+      } else {
+        setError('Something went wrong while loading products. Please try again later.')
+      }
     } finally {
       setLoading(false)
     }
@@ -118,7 +125,6 @@ export function ProductGrid() {
               key={product.id}
               className="bg-white w-full mx-auto dark:bg-gray-900 shadow-md rounded-lg overflow-hidden p-4 flex flex-col transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1" ref={isLast ? lastProductRef : null}
             >
-
               <div className="w-full mx-auto max-w-md">
                 {/* Product image */}
                 {product.image_url && (
