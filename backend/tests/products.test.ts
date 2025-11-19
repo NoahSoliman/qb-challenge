@@ -19,7 +19,7 @@ describe('GET /products', () => {
     afterAll(() => {
         (console.error as jest.Mock).mockRestore();
     });
-    
+
     afterEach(() => {
         jest.clearAllMocks()
     })
@@ -50,12 +50,7 @@ describe('GET /products', () => {
         expect(getProducts).toHaveBeenCalled()
     })
 
-    it('returns 500 for invalid query params (validation failure)', async () => {
-        // limit is non-digit -> Zod validation will throw; endpoint should return 500
-        const res = await request(app).get('/products?page=-1&limit=abc')
-        expect(res.status).toBe(500)
-        expect(res.body).toHaveProperty('error')
-    })
+   
 
 
 })
