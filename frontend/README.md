@@ -13,6 +13,24 @@
    # Using bun
    bun install
    ```
+   
+   ### ⚠️ Note for Docker Users
+
+   If you rely only on Docker for development, you may see errors in VSCode such as:
+
+   - `Cannot find module 'react'`
+   - `Cannot find JSX.IntrinsicElements`
+   - TS2307 / TS7026 errors
+
+   This happens because dependencies are installed **inside Docker**, not on the host.
+
+   To enable proper IntelliSense in your editor:
+
+   ```bash
+   cd frontend
+   pnpm install
+   ```
+   This does **not** affect Docker — it only fixes VSCode red underlines.
 
 3. Start the development server:
    ```bash
@@ -77,10 +95,10 @@ The frontend uses an API route to fetch products from the backend.
 
 **Query Parameters:**
 
-| Parameter | Type   | Default | Description                       |
-|-----------|--------|---------|-----------------------------------|
-| page      | number | 1       | Page number to fetch               |
-| limit     | number | 10      | Number of products per page        |
+| Parameter | Type   | Default | Description                 |
+| --------- | ------ | ------- | --------------------------- |
+| page      | number | 1       | Page number to fetch        |
+| limit     | number | 10      | Number of products per page |
 
 **Response:**
 

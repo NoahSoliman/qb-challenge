@@ -11,7 +11,7 @@ Welcome to the QuickButik coding challenge! This is a test of your ability to wo
 
 ### Getting Started
 
-1. **Clone the repository** (if you haven't already):
+1. **Clone the repository**:
    ```bash
    git clone <your-repo-url>
    cd qb-challenge
@@ -23,44 +23,48 @@ Welcome to the QuickButik coding challenge! This is a test of your ability to wo
    ```
 
 3. **Access the application**:
-   - Frontend: [http://localhost:3000](http://localhost:3000)
-   - Backend API: [http://localhost:3001](http://localhost:3001)
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:3001
    - MySQL Database: localhost:3306
 
 4. **Navigate to the challenge**:
-   - Visit [http://localhost:3000/challenge](http://localhost:3000/challenge) to see the current product grid implementation
+   - Visit http://localhost:3000/challenge to see the current product grid implementation
 
-## 📋 Current State
+---
 
-### Backend (`/backend`)
-The backend is a **Node.js/Express** application that provides a REST API for products. Currently, it's in a basic state with room for improvement:
+## 🧪 Tests
+See API_Test_Guide.md for instructions.
 
-**What's implemented:**
-- Basic Express server with MySQL database connection
-- `/products` endpoint with pagination support
-- `/health` endpoint for monitoring
-- Docker configuration for easy deployment
+---
 
-**Areas for improvement (hints for candidates):**
-- **Code organization**: All code is currently in a single `index.ts` file
-- **Error handling**: Basic error handling could be more robust
-- **API structure**: Consider implementing proper routing, middleware, and controllers
-- **Database layer**: Could benefit from a proper ORM or query builder
-- **Validation**: Input validation and sanitization could be enhanced
-- **Documentation**: API documentation would be helpful
-- **Testing**: No tests are currently implemented
+## ⚠️ VSCode TypeScript Errors (Host Machine)
 
-### Frontend (`/frontend`)
-The frontend is a **Next.js 14** application with React 19:
+Because Docker installs dependencies *inside* containers, VSCode may show TypeScript errors on your host machine:
 
-**What's implemented:**
-- Basic product grid component (`ProductGrid.tsx`)
-- API route to proxy backend requests (`/api/products`)
-- Docker configuration
-- Tailwind CSS for styling
-- TypeScript support
+Common errors include:
+- `Cannot find module 'express'`
+- `Cannot find module 'react'`
+- `Cannot find name 'process'`
+- `JSX element implicitly has type 'any'`
 
-**Current challenge**: The product grid shows a basic list of products but needs enhancement for infinite scrolling.
+To fix this for **editor IntelliSense only**, install dependencies locally:
+
+```bash
+# Backend
+cd backend
+pnpm install
+# or Using npm
+npm install
+# Frontend
+cd frontend
+pnpm install
+# or Using npm
+npm install
+```
+
+This does **NOT** affect Docker or how the app runs — it only fixes red lines in VSCode.
+
+---
 
 ## 🎯 Your Challenge: Infinite Scroll Implementation
 
@@ -163,3 +167,4 @@ When you're ready to submit:
 ---
 
 *This challenge is designed to evaluate your practical skills with modern web technologies. Focus on creating a working solution that demonstrates your understanding of React, state management, and API integration.*
+

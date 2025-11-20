@@ -100,15 +100,41 @@ The backend includes automated tests using **Jest** and **Supertest**.
 
 **Run Tests:**
 
-```bash
-# From the backend directory
+## 🧪 Running Tests
+
+### **Option 1 --- Run tests on your local machine**
+
+From the **backend** directory:
+
+``` bash
 npm install
 npm test
 ```
 
-All test files are located in the `tests/` folder.
+This installs the backend dependencies on your host system and runs all
+test suites using Jest.
 
----
+------------------------------------------------------------------------
+
+### **Option 2 --- Run tests inside the Docker container** (recommended)
+
+If you are using the Docker development environment, tests can be
+executed directly inside the running backend container:
+
+``` bash
+docker compose exec backend pnpm test
+```
+
+This ensures your tests run in the same environment as your application.
+
+------------------------------------------------------------------------
+
+### 📁 Test Location
+
+All test files are stored in the `tests/` directory and follow the
+standard Jest naming conventions.
+
+------------------------------------------------------------------------
 
 ## Notes
 
