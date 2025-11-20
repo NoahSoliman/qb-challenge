@@ -35,6 +35,15 @@ export function ProductGrid() {
    * @param limit Number of items per page
    * @param append Whether to append results to existing products
    */
+
+
+  // helper: merge incoming products into existing list (dedupe by id)
+  const mergeUnique = (prev: Product[], incoming: Product[]) => {
+    const seen = new Set(prev.map(p => p.id))
+    const filtered = incoming.filter(p => p && p.id && !seen.has(p.id))
+    return [...prev, ...filtered]
+  }
+
   const fetchProducts = async (page: number = 1, limit: number = 10, append = false) => {
     setLoading(true)      // Show loading spinner
     setError(null)        // Reset previous errors
@@ -42,36 +51,20 @@ export function ProductGrid() {
     try {
       // Fetch data from frontend API route
       const response = await fetch(`/api/products?page=${page}&limit=${limit}`)
-
+      // If route returned non-OK, parse its friendly error body and show it
       if (!response.ok) {
         const errBody = await response.json().catch(() => null)
-        const message = (errBody && (errBody.error || errBody.message)) || `API error: ${response.status} ${response.statusText}`
-
-        // Set friendly error and exit early (do not throw)
-        console.warn('Backend returned error:', message)
-        setError(message)
-        setLoading(false)
+        setError(errBody?.error || `Server error: ${response.status}`)
         return
       }
 
-      // Try to parse JSON. If parsing fails, show friendly message and exit.
-      const data = await response.json().catch((parseErr) => {
-        console.error('Failed to parse JSON from /api/products:', parseErr)
-        setError('Received invalid response from server.')
-        setLoading(false)
-        return null
-      })
-      if (!data) return
-
-      // Defensive: ensure products is an array
+      // Normal path: parse data
+      const data = await response.json()
       const incoming: Product[] = Array.isArray(data.products) ? data.products : []
+
       // Append new products to existing ones if needed
       if (append) {
-        setProducts((prev) => {
-          const existingIds = new Set(prev.map((p) => p.id))
-          const uniqueIncoming = incoming.filter((p) => !existingIds.has(p.id))
-          return [...prev, ...uniqueIncoming]
-        })
+        setProducts(prev => mergeUnique(prev, incoming))
       } else {
         setProducts(incoming)
       }
@@ -85,14 +78,9 @@ export function ProductGrid() {
       }
     } catch (err: any) {
       // Catch unexpected runtime errors (network down, CORS, etc.)
-      console.error('Unexpected error when fetching products:', err)
+      console.error('Network or runtime error when fetching products:', err)
+      setError('Unable to load products. Please try again later.')
 
-      // Map known low-level errors to friendly messages
-      if (err instanceof TypeError && err.message === 'Failed to fetch') {
-        setError('Unable to load products. Please check your internet connection and try again.')
-      } else {
-        setError('Something went wrong while loading products. Please try again later.')
-      }
     } finally {
       setLoading(false) // Hide loading spinner
     }
@@ -189,7 +177,7 @@ export function ProductGrid() {
                   {product.price} kr
                 </div>
 
-                {/* Optional: Category and stock */}
+                {/* Category and stock */}
                 <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">
                   {product.category} • Stock: {product.stock_quantity}
                 </div>

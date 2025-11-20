@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       return new Response(
-        JSON.stringify({ error: errorData?.error || 'Backend error' }),
+        JSON.stringify({ error: errorData?.error || "Something went wrong on the server." }),
         {
           status: response.status,
           headers: { 'Content-Type': 'application/json' },
@@ -21,22 +21,21 @@ export async function GET(request: Request) {
       );
     }
 
-    // Return data as-is
+    // Successful response
     const data = await response.json();
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json(data);
 
-  } catch (error: any) {
-    console.error('Error fetching products from backend:', error);
+   } catch (error) {
+    console.error("Error fetching products from backend:", error);
 
-    // Fallback error response
+    // Last fallback — friendly error message
     return new Response(
-      JSON.stringify({ error: 'Unable to fetch products from backend. Please try again later.' }),
+      JSON.stringify({
+        error: "Unable to fetch products. Please try again later.",
+      }),
       {
         status: 503,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
