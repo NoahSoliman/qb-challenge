@@ -108,7 +108,7 @@ The frontend uses an API route to fetch products from the backend.
 }
 ```
 
-**Note:** The frontend uses pagination internally for infinite scroll, but you don’t need to display page numbers to the user.
+**Note:** The frontend uses pagination internally for infinite scroll, but it did not display page numbers to the user.
 
 ---
 
