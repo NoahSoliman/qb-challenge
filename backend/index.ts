@@ -2,7 +2,7 @@
 import express from 'express';
 import healthRouter from './routes/health';
 import productsRouter from './routes/products';
-
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -13,9 +13,9 @@ app.use(express.json());
 app.use('/health', healthRouter);
 app.use('/products', productsRouter);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Centralized error handler (must be last)
+app.use(errorHandler);
+
 
 // -----------------------------
 // Start server

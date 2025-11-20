@@ -40,7 +40,7 @@ describe('GET /health', () => {
 
         const res = await request(app).get('/health')
         expect(res.status).toBe(500)
-        expect(res.body).toEqual({ status: 'error' })
+        expect(res.body).toEqual({ error: 'Internal server error'})
         expect(pool.execute).toHaveBeenCalled()
     })
 
