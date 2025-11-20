@@ -22,7 +22,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     } catch (error) {
         // Forward a friendly status/message to the central error handler
-        next({ status: 500, message: 'Unable to fetch products from database' })
+        next({ status: 500, message: 'Unable to fetch products from database.' })
     }
 });
 

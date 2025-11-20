@@ -34,7 +34,7 @@ Check if the server and database are running.
 
 ```json
 {
-  "error": "Internal server error"
+  "error": "Health check failed"
 }
 ```
 
@@ -85,7 +85,7 @@ Retrieve a paginated list of products.
 
 ```json
 {
-  "error": "Unable to fetch products at the moment, please try again later."
+  "error": "Unable to fetch products from database."
 }
 ```
 
