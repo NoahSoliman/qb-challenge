@@ -1,13 +1,13 @@
-import { Router, Request, Response , NextFunction } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { getProducts } from '../controllers/products';
 
 const router = Router();
 
 
 // Products endpoint
-router.get('/', async (req: Request, res: Response , next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-       // Parse query params
+        // Parse query params
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
 
@@ -21,7 +21,8 @@ router.get('/', async (req: Request, res: Response , next: NextFunction) => {
         res.json(data);
 
     } catch (error) {
-        next(error); // Forward to centralized error handler
+        // Forward a friendly status/message to the central error handler
+        next({ status: 500, message: 'Unable to fetch products from database' })
     }
 });
 

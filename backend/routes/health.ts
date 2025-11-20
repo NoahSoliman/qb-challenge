@@ -10,7 +10,7 @@ router.get('/', async (_: Request, res: Response, next: NextFunction) => {
         await pool.execute('SELECT 1+1');
         res.json({ status: 'ok' });
     } catch (error) {
-        next(error); // Forward DB errors to centralized error handler
+        return next({ status: 500, message: 'Health check failed' })
     }
 });
 
